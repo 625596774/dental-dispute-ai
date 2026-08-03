@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+node_modules/
+.DS_Store
+coverage/
+*.log
+__pycache__/
+*.py[cod]
+.codex/auth.json

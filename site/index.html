@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="口腔纠纷一般法律信息、材料整理和处理路径参考">
+  <title>口腔纠纷法律咨询助手</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <section id="unlockView" class="unlock-view" aria-labelledby="unlockTitle">
+    <form id="unlockForm" class="unlock-card">
+      <div class="brand-mark" aria-hidden="true">法</div>
+      <p class="eyebrow">AI 自动生成，无人工审核</p>
+      <h1 id="unlockTitle">口腔纠纷法律咨询助手</h1>
+      <p>输入共享访问密码后进入。网页由人工智能自动生成回答，无人工审核。</p>
+      <label for="password">共享访问密码</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <button class="primary" type="submit">进入咨询</button>
+      <p id="unlockError" class="error" role="alert"></p>
+      <p class="fine-print">纯前端共享密码方案，适合小范围可信用户。密钥无法获得商业级服务端隔离。</p>
+    </form>
+  </section>
+
+  <div id="appView" class="app" hidden>
+    <header class="topbar">
+      <div><strong>口腔纠纷法律咨询助手</strong><span>AI 自动生成，无人工审核</span></div>
+      <nav aria-label="案件操作">
+        <button id="newCaseBtn" type="button">新建案件</button>
+        <button id="lockBtn" type="button">立即锁定</button>
+      </nav>
+    </header>
+
+    <main class="shell">
+      <aside class="side-panel">
+        <section>
+          <h2>快捷整理</h2>
+          <div id="quickActions" class="quick-actions">
+            <button data-task="evidence">证据清单</button><button data-task="complaint">投诉书</button>
+            <button data-task="records">病历复制申请书</button><button data-task="timeline">案件时间线</button>
+            <button data-task="lawyer">律师咨询摘要</button>
+          </div>
+        </section>
+        <section class="meter">
+          <h2>本机用量</h2><p>今日调用 <strong id="usageCount">0</strong> 次</p>
+          <p>这是浏览器端柔性限制，可被绕过。</p>
+        </section>
+        <section>
+          <h2>本机数据</h2>
+          <button id="exportBtn" type="button">导出当前案件 TXT</button>
+          <button id="clearCaseBtn" type="button">清空当前案件</button>
+          <button id="clearAllBtn" class="danger" type="button">清空全部本机数据</button>
+        </section>
+      </aside>
+
+      <section class="chat-panel" aria-label="咨询对话">
+        <div id="welcome" class="welcome">
+          <p class="eyebrow">一般法律信息 · 本地加密记忆</p>
+          <h2>先说说发生了什么</h2>
+          <p>可从治疗经过、目前损害、沟通结果和你的诉求开始。请避免输入不必要的身份证号、银行卡号或完整住址。</p>
+          <div id="examples" class="examples">
+            <button>种植牙失败可以要求退款吗？</button><button>拔牙后持续麻木，门诊是否有责任？</button>
+            <button>正畸做到一半停止，费用怎么结算？</button><button>门诊不给病历和影像怎么办？</button>
+            <button>没签知情同意书可以要求赔偿吗？</button><button>想投诉口腔诊所应该走什么流程？</button>
+          </div>
+        </div>
+        <div id="messages" class="messages" aria-live="polite"></div>
+        <div id="riskBanner" class="risk-banner" hidden role="alert"></div>
+        <div id="status" class="status" role="status"></div>
+        <form id="chatForm" class="composer">
+          <label class="sr-only" for="messageInput">咨询内容</label>
+          <textarea id="messageInput" maxlength="5000" rows="2" placeholder="输入问题；Enter 发送，Shift+Enter 换行"></textarea>
+          <div class="composer-row">
+            <span id="charCount">0 / 5000</span>
+            <button id="connectionBtn" type="button">测试接口连接</button>
+            <button id="stopBtn" type="button" hidden>停止生成</button>
+            <button id="sendBtn" class="primary" type="submit">发送</button>
+          </div>
+        </form>
+      </section>
+    </main>
+    <footer>
+      <p>本服务仅提供一般法律信息、材料整理和处理路径参考，不构成正式律师意见、医疗诊断或鉴定结论。</p>
+      <details><summary>隐私与安全边界</summary><p>本网页不接收文件上传。咨询内容会发送给模型服务商生成答复；网页不设数据库，本地历史以加密形式保存在当前浏览器，换设备不会同步，清除浏览器数据后会丢失。知道共享密码且具备浏览器开发工具知识的人，技术上可能从网络请求中取得 API Key。</p></details>
+    </footer>
+  </div>
+  <script src="encrypted-config.js"></script><script src="legal-sources.js"></script>
+  <script src="prompt.js"></script><script src="app.js"></script>
+</body>
+</html>

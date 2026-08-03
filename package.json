@@ -1,0 +1,10 @@
+{
+  "name": "dental-dispute-ai",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check site/app.js && node --check site/prompt.js && node --check site/legal-sources.js && node --check tools/encrypt-config.mjs"
+  }
+}
