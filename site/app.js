@@ -16,7 +16,7 @@
     unlockView: $("unlockView"), appView: $("appView"), unlockForm: $("unlockForm"), password: $("password"),
     unlockError: $("unlockError"), chatForm: $("chatForm"), input: $("messageInput"), messages: $("messages"),
     welcome: $("welcome"), risk: $("riskBanner"), status: $("status"), stop: $("stopBtn"), send: $("sendBtn"),
-    count: $("charCount"), usage: $("usageCount")
+    count: $("charCount")
   };
 
   const emptyMemory = () => ({
@@ -159,7 +159,6 @@
     const usage = usageState();
     if (increment) usage.count += 1;
     localStorage.setItem(USAGE_KEY, JSON.stringify(usage));
-    els.usage.textContent = String(usage.count);
     return usage;
   }
 
