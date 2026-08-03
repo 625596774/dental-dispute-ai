@@ -20,6 +20,8 @@ test("API 请求禁用存储并支持取消、超时与 reasoning 回退", async
   assert.match(app, /config\.timeoutMs/);
   assert.match(app, /body\.reasoning =/);
   assert.match(app, /body\.reasoning_effort =/);
+  assert.match(app, /Thinking · 思考中/);
+  assert.match(app, /阶段估计/);
 });
 
 test("本地案件仅以 AES-GCM 密文信封持久化", async () => {

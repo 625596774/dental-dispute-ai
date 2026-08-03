@@ -30,6 +30,7 @@
   let busy = false;
   let lastRequestAt = 0;
   let inactivityTimer = null;
+  let thinkingTimer = null;
   let lastUserPrompt = "";
 
   function bytesToBase64(bytes) {
@@ -135,6 +136,7 @@
   function lock(message = "") {
     if (controller) controller.abort();
     clearTimeout(inactivityTimer);
+    stopThinkingStatus();
     secrets.apiKey = null;
     secrets.storageKey = null;
     data = { currentCaseId: null, cases: [] };
@@ -177,6 +179,30 @@
 
   function scrollMessagesToEnd() {
     requestAnimationFrame(() => { els.messages.scrollTop = els.messages.scrollHeight; });
+  }
+
+  function startThinkingStatus(connectionOnly = false) {
+    const startedAt = Date.now();
+    const phases = connectionOnly
+      ? [[0, "正在建立安全连接"], [5, "正在等待接口响应"], [15, "接口响应时间较长，仍在等待"]]
+      : [[0, "正在理解问题和案件上下文"], [6, "正在梳理争议焦点与证据"], [15, "正在匹配内置法律依据"], [30, "正在组织回答与行动建议"], [60, "问题较复杂，仍在深入分析"]];
+    const update = () => {
+      const seconds = Math.floor((Date.now() - startedAt) / 1000);
+      const phase = [...phases].reverse().find(([threshold]) => seconds >= threshold)?.[1] || phases[0][1];
+      els.status.textContent = `Thinking · 思考中 ${seconds} 秒 · ${phase}（阶段估计）`;
+    };
+    clearInterval(thinkingTimer);
+    els.status.classList.add("thinking");
+    els.status.setAttribute("aria-busy", "true");
+    update();
+    thinkingTimer = setInterval(update, 1000);
+  }
+
+  function stopThinkingStatus() {
+    clearInterval(thinkingTimer);
+    thinkingTimer = null;
+    els.status.classList.remove("thinking");
+    els.status.removeAttribute("aria-busy");
   }
 
   function appendMessage(role, text, citations = [], canRegenerate = false) {
@@ -323,7 +349,7 @@
       lastUserPrompt = userText;
     }
     busy = true; lastRequestAt = Date.now(); updateUsage(true); resetInactivity();
-    els.send.disabled = true; els.stop.hidden = false; els.status.textContent = "正在生成回答…";
+    els.send.disabled = true; els.stop.hidden = false; startThinkingStatus(Boolean(options.connectionOnly));
     try {
       const parsed = await postResponses(userText, "reasoning", Boolean(options.connectionOnly));
       if (parsed.memory && typeof parsed.memory === "object" && !Array.isArray(parsed.memory)) item.memory = { ...item.memory, ...parsed.memory };
@@ -333,9 +359,10 @@
       item.updatedAt = new Date().toISOString();
       appendMessage("assistant", parsed.visible, citations, true);
       await saveCases();
+      stopThinkingStatus();
       els.status.textContent = "回答已生成并加密保存到本机浏览器。";
-    } catch (error) { els.status.textContent = error.message || "请求失败，请稍后重试。"; }
-    finally { busy = false; controller = null; els.send.disabled = false; els.stop.hidden = true; }
+    } catch (error) { stopThinkingStatus(); els.status.textContent = error.message || "请求失败，请稍后重试。"; }
+    finally { stopThinkingStatus(); busy = false; controller = null; els.send.disabled = false; els.stop.hidden = true; }
   }
 
   async function unlock(event) {

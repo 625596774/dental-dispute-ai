@@ -25,6 +25,8 @@ class StaticSiteTests(unittest.TestCase):
         app = self.read("site/app.js")
         for expected in ("store: false", "AbortController", "config.timeoutMs", "body.reasoning =", "body.reasoning_effort ="):
             self.assertIn(expected, app)
+        self.assertIn("Thinking · 思考中", app)
+        self.assertIn("阶段估计", app)
 
     def test_local_storage_uses_ciphertext_envelope(self):
         app = self.read("site/app.js")
