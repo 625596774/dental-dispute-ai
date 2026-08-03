@@ -30,6 +30,8 @@ class StaticSiteTests(unittest.TestCase):
             self.assertIn(expected, app)
         self.assertIn("Thinking · 思考中", app)
         self.assertIn("阶段估计", app)
+        self.assertIn("请勿反复点击", app)
+        self.assertIn("至少等待 30 秒", app)
 
     def test_local_storage_uses_ciphertext_envelope(self):
         app = self.read("site/app.js")
@@ -48,6 +50,8 @@ class StaticSiteTests(unittest.TestCase):
     def test_encrypted_config_is_populated(self):
         config = self.read("site/encrypted-config.js")
         self.assertIn('"model": "gpt-5.4"', config)
+        self.assertIn('"reasoningEffort": "medium"', config)
+        self.assertIn('"timeoutMs": 180000', config)
         for field in ("salt", "iv", "ciphertext"):
             match = re.search(rf'"{field}": "([^"]+)"', config)
             self.assertIsNotNone(match)

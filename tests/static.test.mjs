@@ -25,6 +25,8 @@ test("API 请求禁用存储并支持取消、超时与 reasoning 回退", async
   assert.match(app, /body\.reasoning_effort =/);
   assert.match(app, /Thinking · 思考中/);
   assert.match(app, /阶段估计/);
+  assert.match(app, /请勿反复点击/);
+  assert.match(app, /至少等待 30 秒/);
 });
 
 test("本地案件仅以 AES-GCM 密文信封持久化", async () => {
@@ -47,6 +49,8 @@ test("密文配置不含秘密占位变量或 Bearer 值", async () => {
   const config = await read("site/encrypted-config.js");
   assert.doesNotMatch(config, /FEIFEIMIAO_API_KEY|SHARED_ACCESS_PASSWORD|Authorization|Bearer\s+\S+/);
   assert.match(config, /gpt-5\.4/);
+  assert.match(config, /"reasoningEffort": "medium"/);
+  assert.match(config, /"timeoutMs": 180000/);
 });
 
 test("官方依据均为本地 allowlist 和政府站点", async () => {

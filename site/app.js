@@ -320,7 +320,11 @@
       actionRow.append(copy);
       if (canRegenerate) {
         const retry = document.createElement("button"); retry.type = "button"; retry.textContent = "重新生成";
-        retry.addEventListener("click", () => sendMessage(lastUserPrompt, { displayUser: false }));
+        retry.title = "请勿反复点击，避免重复请求和可能的重复计费";
+        retry.addEventListener("click", () => {
+          if (!window.confirm("请勿反复点击“重新生成”。上一次请求可能仍在服务端处理，重复请求可能产生额外用量。确认重新生成吗？")) return;
+          sendMessage(lastUserPrompt, { displayUser: false });
+        });
         actionRow.append(retry);
       }
       card.append(actionRow, citationCards(citations));
@@ -424,7 +428,7 @@
       }
       return parseModelResponse(json);
     } catch (error) {
-      if (error.name === "AbortError" || controller?.signal.aborted) throw new Error(controller?.signal.reason === "timeout" ? "请求超时，可重新尝试。" : "已停止生成。");
+      if (error.name === "AbortError" || controller?.signal.aborted) throw new Error(controller?.signal.reason === "timeout" ? "请求已等待 180 秒并超时。服务端可能仍在处理，请至少等待 30 秒后再重新生成；请勿反复点击，以免产生重复请求和额外用量。" : "已停止生成。");
       if (error instanceof TypeError) throw new Error("网络请求失败：当前接口可能未允许本页面跨域访问，或网络/接口不可用。这不是访问密码错误；纯静态网页无法绕过服务端 CORS。请勿使用 no-cors 或公共代理。 ");
       throw error;
     } finally { clearTimeout(timeout); }

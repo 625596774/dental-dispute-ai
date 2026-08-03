@@ -6,7 +6,7 @@
 
 项目是可直接发布到 GitHub Pages 的原生 HTML/CSS/JavaScript 静态站点：没有服务器、数据库、账号系统、文件上传、分析埋点或 CORS 代理。它支持连续案件摘要、最近对话上下文、五类快捷文书、确定性医疗/法律高风险提示、停止与重新生成、复制和 TXT 导出，以及来自本地 allowlist 的官方法规依据卡片。
 
-API 请求使用 `https://api.feifeimiao.top/v1/responses`、`gpt-5.4`、Responses API 格式和 `store: false`。`reasoning.effort: "xhigh"` 不兼容时，只针对明确的参数不支持 400 错误依次尝试兼容格式和省略 reasoning 参数。
+API 请求使用 `https://api.feifeimiao.top/v1/responses`、`gpt-5.4`、Responses API 格式和 `store: false`。默认推理强度为 `medium`，请求超时为 180 秒；reasoning 参数不兼容时，只针对明确的参数不支持 400 错误依次尝试兼容格式和省略 reasoning 参数。超时后服务端可能仍在处理，请勿反复重新生成，以免产生重复请求和额外用量。
 
 ## 密钥与本地数据
 
