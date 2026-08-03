@@ -10,6 +10,9 @@ test("页面无外部脚本、文件上传或危险模型 HTML 渲染", async ()
   assert.doesNotMatch(html, /type=["']file["']/i);
   assert.doesNotMatch(app, /\.innerHTML\s*=/);
   assert.match(app, /textContent = text/);
+  assert.match(app, /renderSafeMarkdown/);
+  assert.match(app, /createDocumentFragment/);
+  assert.doesNotMatch(app, /DOMParser|insertAdjacentHTML/);
   assert.doesNotMatch(app, /scrollIntoView/);
 });
 

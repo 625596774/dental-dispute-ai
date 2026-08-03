@@ -205,13 +205,112 @@
     els.status.removeAttribute("aria-busy");
   }
 
+  function appendInlineMarkdown(parent, value) {
+    const pattern = /(`[^`\n]+`|\*\*[^*\n]+\*\*|__[^_\n]+__|\*[^*\n]+\*|_[^_\n]+_)/g;
+    let cursor = 0;
+    for (const match of value.matchAll(pattern)) {
+      if (match.index > cursor) parent.append(document.createTextNode(value.slice(cursor, match.index)));
+      const token = match[0];
+      let element;
+      if (token.startsWith("`")) element = document.createElement("code");
+      else if (token.startsWith("**") || token.startsWith("__")) element = document.createElement("strong");
+      else element = document.createElement("em");
+      const trim = token.startsWith("**") || token.startsWith("__") ? 2 : 1;
+      element.textContent = token.slice(trim, -trim);
+      parent.append(element);
+      cursor = match.index + token.length;
+    }
+    if (cursor < value.length) parent.append(document.createTextNode(value.slice(cursor)));
+  }
+
+  function renderSafeMarkdown(markdown) {
+    const fragment = document.createDocumentFragment();
+    const lines = String(markdown).replace(/\r\n?/g, "\n").split("\n");
+    let paragraphLines = [];
+    let currentList = null;
+    let codeLines = null;
+
+    const flushParagraph = () => {
+      if (!paragraphLines.length) return;
+      const paragraph = document.createElement("p");
+      paragraphLines.forEach((line, index) => {
+        if (index) paragraph.append(document.createElement("br"));
+        appendInlineMarkdown(paragraph, line);
+      });
+      fragment.append(paragraph);
+      paragraphLines = [];
+    };
+    const closeList = () => { currentList = null; };
+    const appendCode = () => {
+      const pre = document.createElement("pre");
+      const code = document.createElement("code");
+      code.textContent = (codeLines || []).join("\n");
+      pre.append(code);
+      fragment.append(pre);
+      codeLines = null;
+    };
+
+    for (const line of lines) {
+      if (/^\s*```/.test(line)) {
+        if (codeLines) appendCode();
+        else { flushParagraph(); closeList(); codeLines = []; }
+        continue;
+      }
+      if (codeLines) { codeLines.push(line); continue; }
+      if (!line.trim()) { flushParagraph(); closeList(); continue; }
+
+      const heading = line.match(/^\s*(#{1,3})\s*(.+?)\s*#*\s*$/);
+      if (heading) {
+        flushParagraph(); closeList();
+        const title = document.createElement(`h${Math.min(5, heading[1].length + 2)}`);
+        appendInlineMarkdown(title, heading[2]);
+        fragment.append(title);
+        continue;
+      }
+      if (/^\s*(?:---+|___+|\*\*\*+)\s*$/.test(line)) {
+        flushParagraph(); closeList(); fragment.append(document.createElement("hr")); continue;
+      }
+
+      const unordered = line.match(/^\s*(?:[-+]\s*|\*\s+)(.+)$/);
+      const ordered = line.match(/^\s*\d+[.)]\s*(.+)$/);
+      if (unordered || ordered) {
+        flushParagraph();
+        const type = ordered ? "ol" : "ul";
+        if (!currentList || currentList.tagName.toLowerCase() !== type) {
+          currentList = document.createElement(type);
+          fragment.append(currentList);
+        }
+        const item = document.createElement("li");
+        appendInlineMarkdown(item, (ordered || unordered)[1]);
+        currentList.append(item);
+        continue;
+      }
+
+      const quote = line.match(/^\s*>\s?(.*)$/);
+      if (quote) {
+        flushParagraph(); closeList();
+        const blockquote = document.createElement("blockquote");
+        appendInlineMarkdown(blockquote, quote[1]);
+        fragment.append(blockquote);
+        continue;
+      }
+      closeList();
+      paragraphLines.push(line);
+    }
+    if (codeLines) appendCode();
+    flushParagraph();
+    return fragment;
+  }
+
   function appendMessage(role, text, citations = [], canRegenerate = false) {
     els.welcome.hidden = true;
     const card = document.createElement("article");
     card.className = `message ${role}`;
     card.setAttribute("aria-label", role === "user" ? "用户" : "AI 助手");
     const content = document.createElement("div");
-    content.textContent = text;
+    content.className = "message-content";
+    if (role === "assistant") content.append(renderSafeMarkdown(text));
+    else content.textContent = text;
     card.append(content);
     if (role === "assistant") {
       const actionRow = document.createElement("div");

@@ -19,6 +19,9 @@ class StaticSiteTests(unittest.TestCase):
         app = self.read("site/app.js")
         self.assertNotRegex(app, r"\.innerHTML\s*=")
         self.assertIn("textContent = text", app)
+        self.assertIn("renderSafeMarkdown", app)
+        self.assertIn("createDocumentFragment", app)
+        self.assertNotRegex(app, r"DOMParser|insertAdjacentHTML")
         self.assertNotIn("scrollIntoView", app)
 
     def test_api_privacy_timeout_and_fallbacks(self):
