@@ -10,6 +10,7 @@ test("页面无外部脚本、文件上传或危险模型 HTML 渲染", async ()
   assert.doesNotMatch(html, /type=["']file["']/i);
   assert.doesNotMatch(app, /\.innerHTML\s*=/);
   assert.match(app, /textContent = text/);
+  assert.doesNotMatch(app, /scrollIntoView/);
 });
 
 test("API 请求禁用存储并支持取消、超时与 reasoning 回退", async () => {

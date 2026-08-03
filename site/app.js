@@ -175,6 +175,10 @@
     els.risk.textContent = result.message;
   }
 
+  function scrollMessagesToEnd() {
+    requestAnimationFrame(() => { els.messages.scrollTop = els.messages.scrollHeight; });
+  }
+
   function appendMessage(role, text, citations = [], canRegenerate = false) {
     els.welcome.hidden = true;
     const card = document.createElement("article");
@@ -197,7 +201,7 @@
       card.append(actionRow, citationCards(citations));
     }
     els.messages.append(card);
-    card.scrollIntoView({ block: "end", behavior: "smooth" });
+    scrollMessagesToEnd();
   }
 
   function citationCards(ids) {
